@@ -26,14 +26,14 @@ db = db_connection.cursor()
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", title="Home")
 
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     # visiting signup page
     if request.method == "GET":
-        return render_template("signup.html")
+        return render_template("signup.html", title="Sign Up")
 
     # submitting signup form
     firstname = request.form.get("firstname")
@@ -42,16 +42,16 @@ def signup():
     password = request.form.get("password")
 
     if not all((request.form.get("firstname"), request.form.get("lastname"), request.form.get("username"), request.form.get("password"))):
-        return render_template("signup.html", error="Please fill all fields.")
+        return render_template("signup.html", error="Please fill all fields.", title="Sign Up")
     
     if not firstname.isalpha() or not lastname.isalpha():
-        return render_template("signup.html", error="Please enter your name properly.")
+        return render_template("signup.html", error="Please enter your name properly.", title="Sign Up")
 
     if " " in username:
-        return render_template("signup.html", error="Username can't have spaces.")
+        return render_template("signup.html", error="Username can't have spaces.", title="Sign Up")
 
     if not valid_password(password):
-        return render_template("signup.html", error="Password can't be less than 4 characters.")
+        return render_template("signup.html", error="Password can't be less than 4 characters.", title="Sign Up")
 
     # check if username in db here.....
     
@@ -69,13 +69,13 @@ def signup():
 @app.route("/signin", methods=["POST", "GET"])
 def signin():
     if request.method == "GET":
-        return render_template("signin.html")
+        return render_template("signin.html", title="Sign In")
 
     username = request.form.get('username')
     password = request.form.get('password')
     
     if not username or not password:
-        return render_template("signin.html", error="Please enter your username and password")
+        return render_template("signin.html", error="Please enter your username and password", title="Sign In")
 
     db.execute(f"""
     SELECT * FROM users
@@ -84,10 +84,16 @@ def signin():
     """)  # TODO: save from sqlinjection
 
     if not db.fetchone():
-         return render_template("signin.html", error="Incorrect username and/or password")
+         return render_template("signin.html", error="Incorrect username and/or password", title="Sign In")
     
     return redirect("/")  # successfully passed all checks and logged in
    
 
+@app.route("/all")
+def all_quotes():
+    db.execute("SELECT * FROM quotes;")
+    quotes = db.fetchall()
+    print(quotes)
+    return render_template("allquotes.html", quotes=quotes, title="All Quotes")
 
 app.run(debug=True)

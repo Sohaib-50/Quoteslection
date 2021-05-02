@@ -12,7 +12,7 @@ pass VARCHAR(255) NOT NULL
 
 
 -- @block
-CREATE TABLE quotes2 (
+CREATE TABLE quotes (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 quote_text VARCHAR(510) UNIQUE NOT NULL,
 quotee VARCHAR(50) NOT NULL,
@@ -40,3 +40,13 @@ VALUES ("SA54", "Sohaib", "Abbasi", "Hello");
 -- @block
 INSERT INTO users (username, firstname, lastname, pass)
 VALUES ("SA55", "Sohaib", "Abbasi", "Hello");
+
+
+-- @BLOCK
+INSERT INTO  quotes (quote_text, quotee, user_id) VALUES ("Hello world", "Brogrammer", 1);
+
+-- @BLOCK
+INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("It always seems impossible untill it's done", "Nelson Mandela", 1);
+INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("I have no special talent. I am only passionately curious", "Albert Einstein", 10);
+INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("Twenty years from now you will be more disappointed by the things that you didn’t do than by the ones you did do.", "Mark Twain", 1);
+INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("Those who dare to fail miserably can achieve greatly.", "John F. Kennedy", 1);

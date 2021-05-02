@@ -1,0 +1,16 @@
+td
+{
+    text-align: center;     
+    border: 5px solid red;
+   
+}
+
+tr
+{
+    border: 5px solid red;
+}
+
+body
+{
+    border: 20px solid black;
+}

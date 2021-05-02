@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block main_body %}
+
+<h2>All Quotes</h2>
+<table>
+    <thead>
+        <tr>
+            <th> Quote </th>
+            <th> Quotee </th>
+            <th> Submitted </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for quote in quotes %}
+        <tr>
+            <td> {{ quote[1] }} </td>
+            <td> {{ quote[2] }} </td>
+            <td> {{ quote[4] }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br><br><br>
+
+{% endblock %}
