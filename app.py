@@ -5,6 +5,8 @@ from flask import Flask, render_template, request
 import mysql.connector
 from os import getenv
 
+from werkzeug.utils import redirect
+
 # todo: move this to another folder
 def valid_password(password):
     return len(password) > 4
@@ -55,11 +57,37 @@ def signup():
     
     db.execute("""
     INSERT INTO users (username, firstname, lastname, pass) 
-    VALUES (%s, %s, %s, %s);""",
+    VALUES (%s, %s, %s, %s);
+    """,
     (username, firstname, lastname, password))
 
     db_connection.commit()
 
     return redirect("/")
+
+
+@app.route("/signin", methods=["POST", "GET"])
+def signin():
+    if request.method == "GET":
+        return render_template("signin.html")
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if not username or not password:
+        return render_template("signin.html", error="Please enter your username and password")
+
+    db.execute(f"""
+    SELECT * FROM users
+    WHERE username = "{username}"
+    and pass = "{password}";
+    """)  # TODO: save from sqlinjection
+
+    if not db.fetchone():
+         return render_template("signin.html", error="Incorrect username and/or password")
+    
+    return redirect("/")  # successfully passed all checks and logged in
+   
+
 
 app.run(debug=True)
