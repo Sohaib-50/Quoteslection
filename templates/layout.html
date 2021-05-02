@@ -61,14 +61,23 @@
         <h1>Quoteslection</h1>
         <nav>
             <ul>
-                <li><a href="/all"> All Quotes </a></li>
-                <li>My Quotes</li>
-                <li><a href="/signin"> Sign In </a></li>
-                <li><a href="/signup"> Sign Up </a></li>
-                <li>Sign Out</li>
+                <li> <a href="/all"> All Quotes </a> </li>
+                <li> My Quotes</li>
+                <li> <a href="/signin"> Sign In </a> </li>
+                <li> <a href="/signup"> Sign Up </a> </li>
+                <li> <a href="/signout"> Sign Out </a> </li>
             </ul>
         </nav>
     </header>
+
     {% block main_body %} 123 {% endblock %}
+    
+    <footer>
+        {% if not session.user_id %}
+            <h4> NOT SIGNED IN </h4>
+        {% else %}
+            <h4> Signed in as: {{ session.firstname }} {{ session.lastname }}, Username: {{ session.username }} </h4>
+        {% endif %}
+    </footer>
 </body>
 </html>

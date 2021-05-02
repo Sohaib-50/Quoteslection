@@ -1,7 +1,8 @@
 
 
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
+from flask_session import Session
 import mysql.connector
 from os import getenv
 
@@ -13,6 +14,9 @@ def valid_password(password):
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 db_connection = mysql.connector.connect(
   host = "localhost",
@@ -31,6 +35,9 @@ def index():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    if session.get("user_id"):
+        return redirect("/")
+        
     # visiting signup page
     if request.method == "GET":
         return render_template("signup.html", title="Sign Up")
@@ -40,6 +47,7 @@ def signup():
     lastname = request.form.get("lastname")
     username = request.form.get("username")
     password = request.form.get("password")
+    password2 = request.form.get("password2")
 
     if not all((request.form.get("firstname"), request.form.get("lastname"), request.form.get("username"), request.form.get("password"))):
         return render_template("signup.html", error="Please fill all fields.", title="Sign Up")
@@ -52,6 +60,9 @@ def signup():
 
     if not valid_password(password):
         return render_template("signup.html", error="Password can't be less than 4 characters.", title="Sign Up")
+
+    if password != password2:
+        return render_template("signup.html", error="Passwords don't match.", title="Sign Up")
 
     # check if username in db here.....
     
@@ -68,6 +79,9 @@ def signup():
 
 @app.route("/signin", methods=["POST", "GET"])
 def signin():
+    if session.get("user_id"):
+        return redirect("/")
+            
     if request.method == "GET":
         return render_template("signin.html", title="Sign In")
 
@@ -83,10 +97,16 @@ def signin():
     and pass = "{password}";
     """)  # TODO: save from sqlinjection
 
-    if not db.fetchone():
+    user_row = db.fetchone()
+    if not user_row:
          return render_template("signin.html", error="Incorrect username and/or password", title="Sign In")
     
-    return redirect("/")  # successfully passed all checks and logged in
+    # successfully passed all checks and logged in
+    session["user_id"] = user_row[0]
+    session["username"] = user_row[1]
+    session["firstname"] = user_row[2]
+    session["lastname"] = user_row[3]
+    return redirect("/")
    
 
 @app.route("/all")
@@ -95,5 +115,25 @@ def all_quotes():
     quotes = db.fetchall()
     print(quotes)
     return render_template("allquotes.html", quotes=quotes, title="All Quotes")
+
+
+@app.route("/signout")
+def signout():
+    if session.get("user_id"):
+        del session["user_id"]
+        del session["username"]
+        del session["firstname"]
+        del session["lastname"]
+
+    return redirect("/")
+
+
+
+
+
+
+
+
+
 
 app.run(debug=True)
