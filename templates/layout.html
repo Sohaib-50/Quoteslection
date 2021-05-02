@@ -6,6 +6,38 @@
     <title>{{ title }}</title>
     <!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles/styles.css') }}"> -->
     <style>
+        nav
+        {
+            height: 50px;
+            width: 100%;
+        }
+        
+        ul
+        {
+            list-style: none;
+            float: right;
+            margin-right: 5px;
+        }
+        
+        li
+        {
+            display: inline;
+            margin: 10px;
+            border-radius: 5px;
+            font-size: larger;
+        }
+
+        li:hover, li:hover
+        {
+            background-color: pink;
+        }
+
+        a
+        {
+            text-decoration: none;
+            color: palevioletred;
+        }
+
         td, th
         {
             border: 1px solid black;
@@ -15,6 +47,7 @@
         {
             font-size: larger;
         }
+
         table
         {
             border: 5px solid palevioletred;
@@ -28,11 +61,11 @@
         <h1>Quoteslection</h1>
         <nav>
             <ul>
-                <li>Sign In</li>
-                <li>Sign Up</li>
-                <li>Sign Out</li>
-                <li>All Quotes</li>
+                <li><a href="/all"> All Quotes </a></li>
                 <li>My Quotes</li>
+                <li><a href="/signin"> Sign In </a></li>
+                <li><a href="/signup"> Sign Up </a></li>
+                <li>Sign Out</li>
             </ul>
         </nav>
     </header>
