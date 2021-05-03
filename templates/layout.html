@@ -67,13 +67,14 @@
                 <li> <a href="/signup"> Sign Up </a> </li>
                 {% else %}
                 <li> <a href="/myquotes"> My Quotes </a> </li>
+                <li> <a href="/submit"> Submit a quote</a> </li>
                 <li> <a href="/signout"> Sign Out </a> </li>
                 {% endif %}
             </ul>
         </nav>
     </header>
 
-    {% block main_body %} 123 {% endblock %}
+    {% block main_body %} {% endblock %}
     
     <footer>
         {% if not session.user_id %}

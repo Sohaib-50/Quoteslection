@@ -141,6 +141,31 @@ def my_quotes():
     return render_template("myquotes.html", quotes=quotes, title="My Quotes")
 
 
+@app.route("/submit", methods=["POST", "GET"])
+def submit():
+    if not session.get("user_id"):
+        redirect("/")
+
+    if request.method == "GET":
+        return render_template("submit.html", title="Submit a quote")
+
+    quote = request.form.get("quote")
+    quotee = request.form.get("quotee")
+
+    if not quote or not quotee:
+        return render_template("submit.html", error="Please fill both fields", title="Submit a quote")
+    
+    db.execute("""
+    INSERT INTO quotes (quote_text, quotee, user_id)
+    VALUES (%s, %s, %s);
+    """,
+    (quote, quotee, session.get("user_id")))
+
+    db_connection.commit()
+
+    return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
+
+    
 
 
 
