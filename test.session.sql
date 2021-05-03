@@ -50,3 +50,9 @@ INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("It always seems imposs
 INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("I have no special talent. I am only passionately curious", "Albert Einstein", 10);
 INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("Twenty years from now you will be more disappointed by the things that you didn’t do than by the ones you did do.", "Mark Twain", 1);
 INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("Those who dare to fail miserably can achieve greatly.", "John F. Kennedy", 1);
+
+
+--@block
+UPDATE users
+SET firstname = 'Test1', lastname = 'User'
+WHERE username = 'SA55';

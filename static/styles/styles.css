@@ -1,16 +1,126 @@
-td
-{
-    text-align: center;     
-    border: 5px solid red;
-   
-}
-
-tr
-{
-    border: 5px solid red;
-}
 
 body
 {
-    border: 20px solid black;
+    background-color: rgb(196, 164, 132);
+    font-family: sans-serif;
+    color: rgb(149, 69, 53);
+}
+
+header
+{
+    color: rgb(149, 69, 53); 
+    background-color: white;
+    border: 5px solid rgb(149, 69, 53); 
+    border-radius: 10px; 
+    padding: 10px;
+}
+
+.main_section
+{
+    padding-right: 40px;
+    padding-left: 40px;
+}
+
+nav
+{
+    height: 50px;
+    width: 100%;
+}
+
+ul
+{
+    list-style: none;
+    float: right;
+    margin-right: 5px;
+}
+
+li
+{
+    display: inline;
+    margin: 10px;
+    padding: 5px;
+    border: 2px solid rgb(149, 69, 53);
+    border-radius: 8px;
+    font-size: larger;
+}
+
+li:hover, li:hover
+{
+    background-color: rgba(193, 154, 107, 0.685);
+}
+
+a
+{
+    text-decoration: none;
+    color: rgb(149, 69, 53);
+}
+
+table
+{
+    border: 5px solid rgb(149, 69, 53);
+    border-radius: 10px;
+    background-color: white;
+}
+
+table tr:nth-child(even)
+{
+    background-color: rgb(210, 180, 140, 0.685);
+}
+
+table tr:nth-child(odd)
+{
+    background-color: rgba(245, 222, 179, 0.685);
+}
+
+td, th, table
+{
+    border-collapse: collapse;
+}
+
+td, th
+{
+    padding: 15px;
+    border: 1px solid black;
+}
+
+th
+{
+    font-size: larger;
+    background-color: rgba(149, 69, 53, 0.747);
+    color: white;
+}
+
+.form
+{
+    background-color: white;
+    padding: 30px;
+    border: 5px solid rgb(149, 69, 53);
+    border-radius: 10px;
+}
+
+input
+{
+    width: 100%;
+    height: 2rem;
+    font-size: 1.05 rem;
+    margin-bottom: 3px;
+}
+
+input[type=submit]
+{
+    background-color: rgb(196, 164, 132);
+    border: none;
+    border-radius: 10px;
+}
+
+input[type=submit]:hover
+{
+    color: white;
+    background-color: rgb(149, 69, 53); 
+}
+
+hr
+{
+    border: 1px solid rgb(149, 69, 53);
+
 }
