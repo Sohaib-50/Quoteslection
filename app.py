@@ -109,14 +109,6 @@ def signin():
     return redirect("/")
    
 
-@app.route("/all")
-def all_quotes():
-    db.execute("SELECT * FROM quotes;")
-    quotes = db.fetchall()
-    print(quotes)
-    return render_template("allquotes.html", quotes=quotes, title="All Quotes")
-
-
 @app.route("/signout")
 def signout():
     if session.get("user_id"):
@@ -126,6 +118,27 @@ def signout():
         del session["lastname"]
 
     return redirect("/")
+
+@app.route("/all")
+def all_quotes():
+    db.execute("""SELECT quote_text,quotee, firstname,lastname
+    FROM quotes INNER JOIN users
+    ON quotes.user_id = users.id;""")
+    quotes = db.fetchall()  # TODO: change quotes variable name?
+    return render_template("allquotes.html", quotes=quotes, title="All Quotes")
+
+
+@app.route("/myquotes")
+def my_quotes():
+    if not session.get("user_id"):
+        return redirect("/")
+
+    db.execute(f"""SELECT quote_text, quotee, firstname, lastname
+    FROM quotes INNER JOIN users
+    ON quotes.user_id = users.id
+    WHERE users.id = { session["user_id"] };""")
+    quotes = db.fetchall()
+    return render_template("myquotes.html", quotes=quotes, title="My Quotes")
 
 
 

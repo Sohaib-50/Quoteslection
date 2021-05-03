@@ -2,13 +2,12 @@
 
 {% block main_body %}
 
-<h2>All Quotes</h2>
+<h2>My Quotes</h2>
 <table>
     <thead>
         <tr>
             <th> Quote </th>
             <th> Quotee </th>
-            <th> Submitted by </th>
         </tr>
     </thead>
     <tbody>
@@ -16,7 +15,6 @@
         <tr>
             <td> {{ quote[0] }} </td>
             <td> {{ quote[1] }} </td>
-            <td> {{ quote[2] }} {{ quote[3] }} </td>
         </tr>
         {% endfor %}
     </tbody>

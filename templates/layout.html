@@ -62,10 +62,13 @@
         <nav>
             <ul>
                 <li> <a href="/all"> All Quotes </a> </li>
-                <li> My Quotes</li>
+                {% if not session.username %}
                 <li> <a href="/signin"> Sign In </a> </li>
                 <li> <a href="/signup"> Sign Up </a> </li>
+                {% else %}
+                <li> <a href="/myquotes"> My Quotes </a> </li>
                 <li> <a href="/signout"> Sign Out </a> </li>
+                {% endif %}
             </ul>
         </nav>
     </header>
