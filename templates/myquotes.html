@@ -3,6 +3,10 @@
 {% block main_body %}
 
 <h2>My Quotes</h2>
+{% if not quotes %}
+<p> You have no quotes. <u> <a href="/submit"> Submit a quote. </a> </u> </p>
+{% else %}
+
 <table>
     <thead>
         <tr>
@@ -19,5 +23,6 @@
         {% endfor %}
     </tbody>
 </table>
+{% endif %}
 
 {% endblock %}

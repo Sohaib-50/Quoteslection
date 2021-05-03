@@ -3,16 +3,19 @@
 {% block main_body %}
 
 <h2>Submit a quote</h2>
-<form action="/submit" method="post">
-    <input autocomplete="off" name="quote" placeholder="Quote" type="text" maxlength="510"> <br><br>
-    <input autocomplete="off" name="quotee" placeholder="Quotee" type="text" maxlength="50"> <br><br>
-    <input type="submit">
-</form>
-{% if error %}
-    <p style="color: red"> {{ error }} </p>
-{% endif %}
-{% if success %}
-<p style="color: green"> {{ success }} </p>
-{% endif %}
+
+<div class=form>
+    <form action="/submit" method="post">
+        <input autocomplete="off" name="quote" placeholder="Quote" type="text" maxlength="510"> <br><br>
+        <input autocomplete="off" name="quotee" placeholder="Quotee" type="text" maxlength="50"> <br><br>
+        <input type="submit">
+    </form>
+    {% if error %}
+        <p style="color: red"> {{ error }} </p>
+    {% endif %}
+    {% if success %}
+    <p style="color: green"> {{ success }} </p>
+    {% endif %}
+</div>
 
 {% endblock %}
