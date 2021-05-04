@@ -1,7 +1,7 @@
 
 
 
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, jsonify
 from flask_session import Session
 import mysql.connector
 from os import getenv
@@ -119,11 +119,19 @@ def signout():
 
     return redirect("/")
 
+    
+@app.route("/make-favourite")
+def make_favourite():
+    user_id = session.get("user_id")
+    quote_id = request.arg.get("quote_id")
+
+
 @app.route("/all")
 def all_quotes():
-    db.execute("""SELECT quote_text,quotee, firstname,lastname
+    db.execute("""SELECT quote_text, quotee, firstname, lastname, quotes.id
     FROM quotes INNER JOIN users
-    ON quotes.user_id = users.id;""")
+    ON quotes.user_id = users.id
+    ORDER BY submission ASC;""")
     quotes = db.fetchall()  # TODO: change quotes variable name?
     return render_template("allquotes.html", quotes=quotes, title="All Quotes")
 
@@ -132,6 +140,7 @@ def all_quotes():
 def my_quotes():
     if not session.get("user_id"):
         return redirect("/")
+
 
     db.execute(f"""SELECT quote_text, quotee, firstname, lastname
     FROM quotes INNER JOIN users
@@ -164,10 +173,6 @@ def submit():
     db_connection.commit()
 
     return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
-
-    
-
-
 
 
 
