@@ -1,7 +1,7 @@
 
 
 
-from flask import Flask, render_template, request, session
+from flask import Flask, json, render_template, request, session, jsonify
 from flask_session import Session
 import mysql.connector
 from os import getenv
@@ -119,12 +119,32 @@ def signout():
 
     return redirect("/")
 
+    
+@app.route("/make-favourite")
+def make_favourite():
+    user_id = session.get("user_id")
+    quote_id = request.arg.get("quote_idd")
+
+
 @app.route("/all")
 def all_quotes():
-    db.execute("""SELECT quote_text,quotee, firstname,lastname
+    db.execute("""SELECT quote_text, quotee, firstname, lastname, quotes.id
     FROM quotes INNER JOIN users
-    ON quotes.user_id = users.id;""")
-    quotes = db.fetchall()  # TODO: change quotes variable name?
+    ON quotes.user_id = users.id
+    ORDER BY submission ASC;""")
+    quotes = db.fetchall()            # TODO: change quotes variable name?
+
+    if session.get("user_id"):    
+        favourites = set()
+        for quote in quotes:
+            quote_id = quote[4]
+            db.execute(f"""SELECT *
+            FROM favourites
+            WHERE quote_id = {quote_id} and user_id = {session.get("user_id")};""")
+            if db.fetchone():
+                favourites.add(quote_id)
+        return render_template("allquotes.html", quotes=quotes, favourites=favourites, title="All Quotes")
+
     return render_template("allquotes.html", quotes=quotes, title="All Quotes")
 
 
@@ -165,11 +185,23 @@ def submit():
 
     return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
 
-    
 
-
-
-
+@app.route("/favouriteify", methods=["POST"])
+def favouriteify():
+    print(request.form)
+    quote_id = request.form.get("quote_id")
+    if request.form.get("is_favourite") == 'true': 
+        db.execute(f"""DELETE FROM  favourites
+        WHERE user_id = {session.get("user_id")} AND quote_id = {quote_id};""")
+    else:
+        db.execute("""
+        INSERT INTO favourites (user_id, quote_id) 
+        VALUES (%s, %s);
+        """,
+        (session.get("user_id"), quote_id))
+    db_connection.commit()
+    return jsonify(True)
+   
 
 
 

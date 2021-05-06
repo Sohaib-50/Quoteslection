@@ -56,3 +56,16 @@ INSERT INTO quotes (quote_text, quotee, user_id) VALUES ("Those who dare to fail
 UPDATE users
 SET firstname = 'Test1', lastname = 'User'
 WHERE username = 'SA55';
+
+
+-- @block
+CREATE TABLE favourites (
+user_id INT UNSIGNED,
+quote_id INT UNSIGNED,
+PRIMARY KEY(user_id, quote_id),
+FOREIGN KEY(user_id) REFERENCES users(id),
+FOREIGN KEY(quote_id) REFERENCES quotes(id)
+);
+
+--@block
+DELETE FROM favourites;

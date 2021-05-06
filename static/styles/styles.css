@@ -103,7 +103,9 @@ input
     width: 100%;
     height: 2rem;
     font-size: 1.05 rem;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
+    border: 2px rgb(149, 69, 53) solid;
+    border-radius: 5px;
 }
 
 input[type=submit]
@@ -122,5 +124,24 @@ input[type=submit]:hover
 hr
 {
     border: 1px solid rgb(149, 69, 53);
+
+}
+
+
+.homepage
+{
+    background-color: bisque;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+h1
+{
+    text-decoration:double;
 
 }
