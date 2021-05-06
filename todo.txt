@@ -1,0 +1,5 @@
+1) merge templates of all quotes and some quotes
+
+2) add open quote in new tab to show full screen view of quote
+
+3) make a  good homepage
