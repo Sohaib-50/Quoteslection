@@ -2,4 +2,10 @@
 
 2) add open quote in new tab to show full screen view of quote
 
-3) make a  good homepage
+3) (DONE) make a  better homepage
+
+4) add a number of likes column
+
+5) check password matches exactly with cases through sql!
+
+6) do client side checking for login and signup pages initial checks

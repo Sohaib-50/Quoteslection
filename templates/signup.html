@@ -10,13 +10,14 @@
         <input autocomplete="off" name="lastname" placeholder="Last Name" type="text" maxlength="30"> <br><br><br>
         <input autocomplete="off" name="username" placeholder="User Name" type="text" maxlength="20">
         <input autocomplete="off" name="password" placeholder="Password" type="password" maxlength="255">
-        <input autocomplete="off" name="password2" placeholder="Confirm password" type="password" maxlength="255"> <br><br>
+        <input autocomplete="off" name="password2" placeholder="Confirm password" type="password" maxlength="255">
         <br><br>
-        <input type="submit">
+        <br><br>
+        <input type="submit" value="Sign Up">
     </form>
     {% if error %}
-        <p style="color: red"> {{ error }} </p>
-{% endif %}
+    <p style="color: red"> {{ error }} </p>
+    {% endif %}
 </div>
 
 {% endblock %}

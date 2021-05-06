@@ -1,14 +1,12 @@
-
-
-
-from flask import Flask, json, render_template, request, session, jsonify
-from flask_session import Session
-import mysql.connector
 from os import getenv
 
+import mysql.connector
+from flask import Flask, json, jsonify, render_template, request, session
 from werkzeug.utils import redirect
 
-# todo: move this to another folder
+from flask_session import Session
+
+# TODO: move this to another folder
 def valid_password(password):
     return len(password) > 4
 
@@ -19,10 +17,10 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 db_connection = mysql.connector.connect(
-  host = "localhost",
-  user = "root",
-  password = getenv("MySQLpassword"),
-  database = "quoteslection"
+    host="localhost",
+    user="root",
+    password=getenv("MySQLpassword"),
+    database="quoteslection"
 )
 
 db = db_connection.cursor()
@@ -37,7 +35,7 @@ def index():
 def signup():
     if session.get("user_id"):
         return redirect("/")
-        
+
     # visiting signup page
     if request.method == "GET":
         return render_template("signup.html", title="Sign Up")
@@ -51,7 +49,7 @@ def signup():
 
     if not all((request.form.get("firstname"), request.form.get("lastname"), request.form.get("username"), request.form.get("password"))):
         return render_template("signup.html", error="Please fill all fields.", title="Sign Up")
-    
+
     if not firstname.isalpha() or not lastname.isalpha():
         return render_template("signup.html", error="Please enter your name properly.", title="Sign Up")
 
@@ -65,12 +63,12 @@ def signup():
         return render_template("signup.html", error="Passwords don't match.", title="Sign Up")
 
     # check if username in db here.....
-    
+
     db.execute("""
     INSERT INTO users (username, firstname, lastname, pass) 
     VALUES (%s, %s, %s, %s);
     """,
-    (username, firstname, lastname, password))
+               (username, firstname, lastname, password))
 
     db_connection.commit()
 
@@ -81,13 +79,13 @@ def signup():
 def signin():
     if session.get("user_id"):
         return redirect("/")
-            
+
     if request.method == "GET":
         return render_template("signin.html", title="Sign In")
 
     username = request.form.get('username')
     password = request.form.get('password')
-    
+
     if not username or not password:
         return render_template("signin.html", error="Please enter your username and password", title="Sign In")
 
@@ -99,15 +97,15 @@ def signin():
 
     user_row = db.fetchone()
     if not user_row:
-         return render_template("signin.html", error="Incorrect username and/or password", title="Sign In")
-    
+        return render_template("signin.html", error="Incorrect username and/or password", title="Sign In")
+
     # successfully passed all checks and logged in
     session["user_id"] = user_row[0]
     session["username"] = user_row[1]
     session["firstname"] = user_row[2]
     session["lastname"] = user_row[3]
     return redirect("/")
-   
+
 
 @app.route("/signout")
 def signout():
@@ -119,7 +117,7 @@ def signout():
 
     return redirect("/")
 
-    
+
 @app.route("/make-favourite")
 def make_favourite():
     user_id = session.get("user_id")
@@ -134,7 +132,7 @@ def all_quotes():
     ORDER BY submission ASC;""")
     quotes = db.fetchall()            # TODO: change quotes variable name?
 
-    if session.get("user_id"):    
+    if session.get("user_id"):
         favourites = set()
         for quote in quotes:
             quote_id = quote[4]
@@ -174,12 +172,12 @@ def submit():
 
     if not quote or not quotee:
         return render_template("submit.html", error="Please fill both fields", title="Submit a quote")
-    
+
     db.execute("""
     INSERT INTO quotes (quote_text, quotee, user_id)
     VALUES (%s, %s, %s);
     """,
-    (quote, quotee, session.get("user_id")))
+               (quote, quotee, session.get("user_id")))
 
     db_connection.commit()
 
@@ -190,7 +188,7 @@ def submit():
 def favouriteify():
     print(request.form)
     quote_id = request.form.get("quote_id")
-    if request.form.get("is_favourite") == 'true': 
+    if request.form.get("is_favourite") == 'true':
         db.execute(f"""DELETE FROM  favourites
         WHERE user_id = {session.get("user_id")} AND quote_id = {quote_id};""")
     else:
@@ -198,12 +196,9 @@ def favouriteify():
         INSERT INTO favourites (user_id, quote_id) 
         VALUES (%s, %s);
         """,
-        (session.get("user_id"), quote_id))
+                   (session.get("user_id"), quote_id))
     db_connection.commit()
     return jsonify(True)
-   
-
-
 
 
 app.run(debug=True)

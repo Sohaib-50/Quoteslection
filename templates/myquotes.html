@@ -6,23 +6,24 @@
 {% if not quotes %}
 <p> You have no quotes. <u> <a href="/submit"> Submit a quote. </a> </u> </p>
 {% else %}
-
-<table>
-    <thead>
-        <tr>
-            <th> Quote </th>
-            <th> Quotee </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for quote in quotes %}
-        <tr>
-            <td> {{ quote[0] }} </td>
-            <td> {{ quote[1] }} </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="tablediv">
+    <table>
+        <thead>
+            <tr>
+                <th> Quote </th>
+                <th> Quotee </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quote in quotes %}
+            <tr>
+                <td> {{ quote[0] }} </td>
+                <td> {{ quote[1] }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
 {% endblock %}
