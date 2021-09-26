@@ -200,5 +200,5 @@ def favouriteify():
     db_connection.commit()
     return jsonify(True)
 
-
-app.run(debug=True)
+if __name__ == "__main__"
+    app.run(debug=True)
