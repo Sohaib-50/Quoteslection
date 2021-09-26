@@ -1,6 +1,7 @@
 -- @block
 CREATE DATABASE IF NOT EXISTS quoteslection;
 
+
 -- @block
 CREATE TABLE users (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -69,3 +70,7 @@ FOREIGN KEY(quote_id) REFERENCES quotes(id)
 
 --@block
 DELETE FROM favourites;
+
+--@block
+UPDATE users
+SET pass = "quoteapp";

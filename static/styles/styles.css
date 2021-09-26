@@ -47,7 +47,7 @@ li
     /* font-size: larger; */
 }
 
-li:hover, li:hover
+li:hover
 {
     background-color: rgba(193, 154, 107, 0.685);
 }

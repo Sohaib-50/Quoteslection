@@ -1,7 +1,7 @@
 from os import getenv
 
 import mysql.connector
-from flask import Flask, json, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request, session
 from werkzeug.utils import redirect
 
 from flask_session import Session
