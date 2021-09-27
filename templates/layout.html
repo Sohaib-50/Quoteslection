@@ -50,6 +50,7 @@
 
         {% endif %}
     </footer>
+    <input type="hidden"name="next" value="{{ request.args.get('next', '') }}" />  <!-- for passing next url in some endpoint -->
 </body>
 
 </html>

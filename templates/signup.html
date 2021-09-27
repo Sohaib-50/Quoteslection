@@ -3,15 +3,24 @@
 {% block main_body %}
 
 <h2>Sign Up</h2>
+<p> * = required </p>
 
 <div class=form>
     <form action="/signup" method="post">
-        <input autocomplete="off" name="firstname" placeholder="First Name" type="text" maxlength="30">
-        <input autocomplete="off" name="lastname" placeholder="Last Name" type="text" maxlength="30"> <br><br><br>
-        <input autocomplete="off" name="username" placeholder="User Name" type="text" maxlength="20">
-        <input autocomplete="off" name="password" placeholder="Password" type="password" maxlength="255">
-        <input autocomplete="off" name="password2" placeholder="Confirm password" type="password" maxlength="255">
-        <br><br>
+        <label for="firstname">First Name *</label>
+        <input required autocomplete="off" name="firstname" placeholder="First Name" type="text" maxlength="30">
+
+        <label for="lastname">Last Name </label>
+        <input autocomplete="off" name="lastname" placeholder="Last Name" type="text" maxlength="30">
+
+        <label for="username">Username* </label>        
+        <input required autocomplete="off" name="username" placeholder="User Name" type="text" maxlength="30">
+        
+        <label for="password">Password* </label>  
+        <input required autocomplete="off" name="password" placeholder="Password" type="password" maxlength="255">
+        
+        <label for="confirm_password">Confirm Password* </label>
+        <input required autocomplete="off" name="confirm_password" placeholder="Confirm password" type="password" maxlength="255">
         <br><br>
         <input type="submit" value="Sign Up">
     </form>

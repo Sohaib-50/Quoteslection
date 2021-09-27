@@ -124,6 +124,7 @@ input[type=submit]:hover
 {
     color: white;
     background-color: rgb(149, 69, 53); 
+    cursor: pointer;
 }
 
 hr

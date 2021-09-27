@@ -1,14 +1,13 @@
 from os import getenv
 
 import mysql.connector
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request, session, url_for, flash
 from werkzeug.utils import redirect
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 from flask_session import Session
-
-# TODO: move this to another folder
-def valid_password(password):
-    return len(password) > 4
+from helpers import signin_user, signout_user, valid_password
 
 
 app = Flask(__name__)
@@ -23,7 +22,7 @@ db_connection = mysql.connector.connect(
     database="quoteslection"
 )
 
-db = db_connection.cursor()
+db = db_connection.cursor(dictionary=True)
 
 
 @app.route("/")
@@ -33,10 +32,11 @@ def index():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    # if already logged in
     if session.get("user_id"):
         return redirect("/")
 
-    # visiting signup page
+    # just visiting signup page
     if request.method == "GET":
         return render_template("signup.html", title="Sign Up")
 
@@ -45,90 +45,92 @@ def signup():
     lastname = request.form.get("lastname")
     username = request.form.get("username")
     password = request.form.get("password")
-    password2 = request.form.get("password2")
+    confirm_password = request.form.get("confirm_password")
 
-    if not all((request.form.get("firstname"), request.form.get("lastname"), request.form.get("username"), request.form.get("password"))):
-        return render_template("signup.html", error="Please fill all fields.", title="Sign Up")
+    if not all((firstname, username, password, confirm_password)):
+        return render_template("signup.html", error="Please fill all the mandatory fields.", title="Sign Up")
 
     if not firstname.isalpha() or not lastname.isalpha():
         return render_template("signup.html", error="Please enter your name properly.", title="Sign Up")
 
+    # check if username already exists
+    db.execute("SELECT * FROM user WHERE username = %s;", (username, ))
+    if db.fetchone():
+        return render_template("signup.html", error="Sorry that username already exists", title="Sign Up")
+
     if " " in username:
-        return render_template("signup.html", error="Username can't have spaces.", title="Sign Up")
+        return render_template("signup.html", error="Username can't have white spaces.", title="Sign Up")
 
     if not valid_password(password):
         return render_template("signup.html", error="Password can't be less than 4 characters.", title="Sign Up")
 
-    if password != password2:
+    if password != confirm_password:
         return render_template("signup.html", error="Passwords don't match.", title="Sign Up")
-
-    # check if username in db here.....
-
+    
+    # add user to database
     db.execute("""
-    INSERT INTO users (username, firstname, lastname, pass) 
-    VALUES (%s, %s, %s, %s);
-    """,
-               (username, firstname, lastname, password))
-
+    INSERT INTO user (username, firstname, lastname, password_hash) 
+    VALUES (%s, %s, %s, %s);""",
+    (username, firstname, lastname, generate_password_hash(password)))
     db_connection.commit()
-
+    
+    db.execute("SELECT id FROM user WHERE username = %s", (username, ))
+    signin_user(user_id=db.fetchone()["id"], username=username, firstname=firstname, lastname=lastname)
+    
+    flash(f"Successfully signed up. Welcome, {firstname}!")
     return redirect("/")
 
 
 @app.route("/signin", methods=["POST", "GET"])
 def signin():
+    # if already logged in
     if session.get("user_id"):
         return redirect("/")
 
+    # if just visiting the signin page
     if request.method == "GET":
         return render_template("signin.html", title="Sign In")
+    
+    # if submitted signin form
 
     username = request.form.get('username')
     password = request.form.get('password')
 
     if not username or not password:
-        return render_template("signin.html", error="Please enter your username and password", title="Sign In")
+        return render_template("signin.html", error="Please fill both fields", title="Sign In")
 
+    # validate credentials
     db.execute(f"""
-    SELECT * FROM users
-    WHERE username = "{username}"
-    and pass = "{password}";
-    """)  # TODO: save from sqlinjection
-
+    SELECT * FROM user
+    WHERE username = %s;""",
+    (username, ))
     user_row = db.fetchone()
     if not user_row:
-        return render_template("signin.html", error="Incorrect username and/or password", title="Sign In")
+        return render_template("signin.html", error="Invalid username", title="Sign In") 
+    if not check_password_hash(user_row["password_hash"], password):
+        return render_template("signin.html", error="Invalid password", title="Sign In")
 
-    # successfully passed all checks and logged in
-    session["user_id"] = user_row[0]
-    session["username"] = user_row[1]
-    session["firstname"] = user_row[2]
-    session["lastname"] = user_row[3]
+    # logging user in (if all checks above passed)
+    signin_user(user_id=user_row["id"], username=user_row["username"], firstname=user_row["firstname"], lastname=user_row["lastname"])
+    
+    flash(f"Welcome, {user_row['firstname']}!", "success")
+    if next_url := request.form.get("next"):
+        return redirect(next_url)
     return redirect("/")
 
 
 @app.route("/signout")
 def signout():
     if session.get("user_id"):
-        del session["user_id"]
-        del session["username"]
-        del session["firstname"]
-        del session["lastname"]
+        signout_user()
 
     return redirect("/")
 
-
-@app.route("/make-favourite")
-def make_favourite():
-    user_id = session.get("user_id")
-    quote_id = request.arg.get("quote_idd")
-
-
 @app.route("/all")
 def all_quotes():
-    db.execute("""SELECT quote_text, quotee, firstname, lastname, quotes.id
-    FROM quotes INNER JOIN users
-    ON quotes.user_id = users.id
+    db.execute("""SELECT quote_text, quotee, firstname, lastname, quote.id
+    FROM quote INNER JOIN user
+    ON quote.submitter_user_id = user.id
     ORDER BY submission ASC;""")
     quotes = db.fetchall()            # TODO: change quotes variable name?
 
@@ -152,9 +154,9 @@ def my_quotes():
         return redirect("/")
 
     db.execute(f"""SELECT quote_text, quotee, firstname, lastname
-    FROM quotes INNER JOIN users
-    ON quotes.user_id = users.id
-    WHERE users.id = { session["user_id"] };""")
+    FROM quotes INNER JOIN user
+    ON quotes.user_id = user.id
+    WHERE user.id = { session["user_id"] };""")
     quotes = db.fetchall()
     return render_template("myquotes.html", quotes=quotes, title="My Quotes")
 
@@ -200,5 +202,13 @@ def favouriteify():
     db_connection.commit()
     return jsonify(True)
 
-if __name__ == "__main__"
+
+# @app.route("/make-favourite")
+# def make_favourite():
+#     user_id = session.get("user_id")
+#     quote_id = request.arg.get("quote_idd")
+
+
+
+if __name__ == "__main__":
     app.run(debug=True)
