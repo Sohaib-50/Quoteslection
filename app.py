@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 from flask_session import Session
-from helpers import signin_user, signout_user, valid_password
+from helpers import login_required, signin_user, signout_user, valid_password
 
 
 app = Flask(__name__)
@@ -152,16 +152,14 @@ def all_quotes():
 
 
 @app.route("/myquotes")
+@login_required
 def my_quotes():
-    if not session.get("user_id"):
-        return redirect("/")
-
-    db.execute(f"""SELECT quote_text, quotee, firstname, lastname
-    FROM quotes INNER JOIN user
-    ON quotes.user_id = user.id
-    WHERE user.id = { session["user_id"] };""")
-    quotes = db.fetchall()
-    return render_template("myquotes.html", quotes=quotes, title="My Quotes")
+    db.execute("""SELECT quote_text, quotee, firstname, lastname
+    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
+    WHERE user.id = %s;""",
+    (session.get("user_id"), ))
+    user_quotes = db.fetchall()
+    return render_template("myquotes.html", user_quotes=user_quotes, title="My Quotes")
 
 
 @app.route("/submit", methods=["POST", "GET"])

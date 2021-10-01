@@ -3,7 +3,7 @@
 {% block main_body %}
 
 <h2>My Quotes</h2>
-{% if not quotes %}
+{% if not user_quotes %}
 <p> You have no quotes. <u> <a href="/submit"> Submit a quote. </a> </u> </p>
 {% else %}
 <div class="tablediv">
@@ -15,10 +15,10 @@
             </tr>
         </thead>
         <tbody>
-            {% for quote in quotes %}
+            {% for quote in user_quotes %}
             <tr>
-                <td> {{ quote[0] }} </td>
-                <td> {{ quote[1] }} </td>
+                <td> {{ quote["quote_text"] }} </td>
+                <td> {{ quote["quotee"] }} </td>
             </tr>
             {% endfor %}
         </tbody>
