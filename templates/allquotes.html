@@ -18,14 +18,14 @@
         <tbody>
             {% for quote in quotes %}
             <tr>
-                <td> {{ quote[0] }} </td>
-                <td> {{ quote[1] }} </td>
-                <td> {{ quote[2] }} {{ quote[3] }} </td>
+                <td> {{ quote["quote_text"] }} </td>
+                <td> {{ quote["quotee"] }} </td>
+                <td> {{ quote["firstname"] }} {{ quote["lastname"] }} </td>
                 {% if session.user_id %}
                 <td style="text-align: center;">
-                    <button id='quoteid-{{ quote[4] }}' class="fav_btn"
+                    <button id='quoteid-{{ quote["quote_id"] }}' class="fav_btn"
                         style="background-color: transparent; border: none;">
-                        {% if quote[4] in favourites %}
+                        {% if quote["quote_id"] in favourites %}
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-heart-fill" viewBox="0 0 16 16">
                             <path fill-rule="evenodd"
@@ -60,10 +60,10 @@
         let quote_id = current_btn.id.slice("quoteid-".length);
         current_btn.addEventListener("click", function () {
             let btn_content = current_btn.innerHTML
-            let fav = btn_content.includes("bi-heart-fill") ? true : false;
-            console.log("fav: " + fav)
-            $.post("/favouriteify", { quote_id: quote_id, is_favourite: fav }, function (data, status) {
-                if (fav) // if currently button was favourite-d, un favourite it
+            let is_favourite = btn_content.includes("bi-heart-fill") ? true : false;
+            // console.log("fav: " + is_favourite)
+            $.post("/favouriteify_quote", { quote_id: quote_id, is_favourite: is_favourite }, function (data, status) {
+                if (is_favourite) // if currently button was favourite-d, un favourite it
                 {
                     document.querySelector("#quoteid-" + quote_id).innerHTML = non_fav_heart_icon;
                 }
@@ -71,6 +71,7 @@
                 {
                     document.querySelector("#quoteid-" + quote_id).innerHTML = fav_heart_icon;
                 }
+                // console.log("status: " + status + " data" + data);
             });
         });
     }

@@ -128,21 +128,24 @@ def signout():
 
 @app.route("/all")
 def all_quotes():
-    db.execute("""SELECT quote_text, quotee, firstname, lastname, quote.id
-    FROM quote INNER JOIN user
-    ON quote.submitter_user_id = user.id
+    # fetch all quotes in database
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
+    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
     ORDER BY submission ASC;""")
-    quotes = db.fetchall()            # TODO: change quotes variable name?
-
-    if session.get("user_id"):
+    quotes = db.fetchall()
+    
+    # fetch and store in a set all quote_ids for which the quote is favourite for the current user, if logged in
+    if user_id := session.get("user_id"):
         favourites = set()
+        # for every quote fetched earlier
         for quote in quotes:
-            quote_id = quote[4]
-            db.execute(f"""SELECT *
-            FROM favourites
-            WHERE quote_id = {quote_id} and user_id = {session.get("user_id")};""")
-            if db.fetchone():
+            # if quote_id, user_id combination exists in the favourite table, then add the quote id to favourites set
+            quote_id = quote["quote_id"] 
+            db.execute(f"""SELECT * FROM favourite WHERE quote_id = %s and user_id = %s;""",
+            (quote_id, user_id))
+            if db.fetchone():  
                 favourites.add(quote_id)
+        
         return render_template("allquotes.html", quotes=quotes, favourites=favourites, title="All Quotes")
 
     return render_template("allquotes.html", quotes=quotes, title="All Quotes")
@@ -186,16 +189,15 @@ def submit():
     return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
 
 
-@app.route("/favouriteify", methods=["POST"])
-def favouriteify():
-    print(request.form)
+@app.route("/favouriteify_quote", methods=["POST"])
+def favouriteify_quote():
     quote_id = request.form.get("quote_id")
     if request.form.get("is_favourite") == 'true':
-        db.execute(f"""DELETE FROM  favourites
+        db.execute(f"""DELETE FROM  favourite
         WHERE user_id = {session.get("user_id")} AND quote_id = {quote_id};""")
     else:
         db.execute("""
-        INSERT INTO favourites (user_id, quote_id) 
+        INSERT INTO favourite (user_id, quote_id) 
         VALUES (%s, %s);
         """,
                    (session.get("user_id"), quote_id))
