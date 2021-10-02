@@ -11,23 +11,35 @@
 
 <body>
     <header>
-        <a href="/">
-            <h1> Quoteslection </h1>
+        <a href="/" >
+            <h1> Quoteslection </h1> <h4> (Quotes-Collection) </h4  >
         </a>
         <nav>
             <ul>
-                <li> <a href="/all"> All Quotes </a> </li>
                 {% if not session.username %}
-                <li> <a href="/signin"> Sign In </a> </li>
-                <li> <a href="/signup"> Sign Up </a> </li>
+                    <li> <a href="/signin"> Sign In </a> </li>
+                    <li> <a href="/signup"> Sign Up </a> </li>
                 {% else %}
-                <li> <a href="/myquotes"> My Quotes </a> </li>
-                <li> <a href="/submit"> Submit a quote</a> </li>
-                <li> <a href="/signout"> Sign Out </a> </li>
+                    <li> <a href="/favourite_quotes"> Favourites </a> </li>
+                    <li> <a href="/my_quotes"> My submissions </a> </li>
+                    <li> <a href="/submit"> Submit a quote</a> </li>
+                    <li> <a href="/signout"> Sign Out </a> </li>
                 {% endif %}
             </ul>
         </nav>
     </header>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      {{ message }}
+    </div>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
 
     <section class="main_section">
         {% block main_body %} {% endblock %}

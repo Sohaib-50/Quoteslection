@@ -4,8 +4,10 @@
 
 3) (DONE) make a  better homepage
 
-4) add a number of likes column
+4) add a number of likes column (then sort by likes? give option of sorting?)
 
 5) check password matches exactly with cases through sql!
 
 6) do client side checking for login and signup pages initial checks
+
+7) add delete button for quotes (atleast in myquotes page)

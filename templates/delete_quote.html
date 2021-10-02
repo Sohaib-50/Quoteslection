@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block main_body %}
+<br>
+<div class="form">
+    <h3 style="color: black;"> Are you sure you want to delete the following quote: </h3>
+    <p style="color: black;"> Quote: "{{ quote['quote_text'] }}" <br>
+    Quotee: {{ quote["quotee"] }} </p>
+<h3 style="color: red;">This action can not be undone.</h3>
+    <form action="{{'/delete_quote/' +  quote['id']|string }}" method="POST">
+        <input type="submit" name="confirm_delete" value="NO">
+        <input type="submit" name="confirm_delete" value="YES">
+    </form>
+</div>
+{% endblock %}

@@ -27,7 +27,28 @@ db = db_connection.cursor(dictionary=True)
 
 @app.route("/")
 def index():
-    return render_template("index.html", title="Home")
+    # fetch all quotes in database
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
+    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
+    ORDER BY submission DESC;""")
+    quotes = db.fetchall()
+    
+    # fetch and store in a set all quote_ids for which the quote is favourite for the current user, if logged in
+    if user_id := session.get("user_id"):
+        favourites = set()
+        # for every quote fetched earlier
+        for quote in quotes:
+            # if quote_id, user_id combination exists in the favourite table, then add the quote id to favourites set
+            quote_id = quote["quote_id"] 
+            db.execute(f"""SELECT * FROM favourite WHERE quote_id = %s and user_id = %s;""",
+            (quote_id, user_id))
+            if db.fetchone():  
+                favourites.add(quote_id)
+        
+        return render_template("index.html", quotes=quotes, favourites=favourites, title="Quoteslection")
+
+    return render_template("index.html", quotes=quotes, title="Quoteslection")
+    # return render_template("index.html", title="Home")
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -123,50 +144,26 @@ def signin():
 def signout():
     if session.get("user_id"):
         signout_user()
+        flash("Successfully signed out")
 
     return redirect("/")
 
-@app.route("/all")
-def all_quotes():
-    # fetch all quotes in database
-    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
-    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
-    ORDER BY submission ASC;""")
-    quotes = db.fetchall()
-    
-    # fetch and store in a set all quote_ids for which the quote is favourite for the current user, if logged in
-    if user_id := session.get("user_id"):
-        favourites = set()
-        # for every quote fetched earlier
-        for quote in quotes:
-            # if quote_id, user_id combination exists in the favourite table, then add the quote id to favourites set
-            quote_id = quote["quote_id"] 
-            db.execute(f"""SELECT * FROM favourite WHERE quote_id = %s and user_id = %s;""",
-            (quote_id, user_id))
-            if db.fetchone():  
-                favourites.add(quote_id)
-        
-        return render_template("allquotes.html", quotes=quotes, favourites=favourites, title="All Quotes")
 
-    return render_template("allquotes.html", quotes=quotes, title="All Quotes")
-
-
-@app.route("/myquotes")
+@app.route("/my_quotes")
 @login_required
 def my_quotes():
-    db.execute("""SELECT quote_text, quotee, firstname, lastname
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
     FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
-    WHERE user.id = %s;""",
+    WHERE user.id = %s
+    ORDER BY submission DESC;""",
     (session.get("user_id"), ))
     user_quotes = db.fetchall()
     return render_template("myquotes.html", user_quotes=user_quotes, title="My Quotes")
 
 
 @app.route("/submit", methods=["POST", "GET"])
+@login_required
 def submit():
-    if not session.get("user_id"):
-        redirect("/")
-
     if request.method == "GET":
         return render_template("submit.html", title="Submit a quote")
 
@@ -177,11 +174,10 @@ def submit():
         return render_template("submit.html", error="Please fill both fields", title="Submit a quote")
 
     db.execute("""
-    INSERT INTO quotes (quote_text, quotee, user_id)
+    INSERT INTO quote (quote_text, quotee, submitter_user_id)
     VALUES (%s, %s, %s);
     """,
                (quote, quotee, session.get("user_id")))
-
     db_connection.commit()
 
     return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
@@ -202,11 +198,30 @@ def favouriteify_quote():
     db_connection.commit()
     return jsonify(True)
 
+@app.route("/delete_quote/<quote_id>", methods=["GET", "POST"])
+@login_required
+def delete_quote(quote_id):
+    if request.method == "GET":
+        db.execute("""SELECT id, quote_text, quotee FROM quote
+        WHERE id = %s and submitter_user_id = %s""",
+        (quote_id, session.get("user_id")))
+        db_result = db.fetchone()
+        if not db_result:
+            flash("The quote you tried to delete isn't yours.")
+            return redirect("/")
+        return render_template("delete_quote.html", quote=db_result, title=f"Delete Quote")
+    else:
+        if request.form.get("confirm_delete") == "NO":  # user doesnt want to delete
+            flash("Not deleted.")
+            return redirect("/my_quotes")
+        else:  # confirm delete
+            db.execute("DELETE FROM favourite WHERE quote_id = %s", (quote_id, ))
 
-# @app.route("/make-favourite")
-# def make_favourite():
-#     user_id = session.get("user_id")
-#     quote_id = request.arg.get("quote_idd")
+            db.execute("DELETE FROM quote WHERE id = %s", (quote_id, ))
+
+            db_connection.commit()
+            flash("successfully deleted.")
+            return redirect("/my_quotes")
 
 
 

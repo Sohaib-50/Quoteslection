@@ -108,6 +108,10 @@ th
     padding: 30px;
     border: 5px solid rgb(149, 69, 53);
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 input
@@ -144,7 +148,7 @@ hr
 .homepage
 {
     background-color: bisque;
-    height: 80vh;
+    height: 20vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -161,4 +165,35 @@ footer
     justify-content: flex-end;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+
+/* The alert message box */
+.flash {
+    padding: 15px;
+    color: white;
+    background-color: rgb(149, 69, 53);
+    margin-bottom: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    opacity: 1;
+    transition: opacity 0.05s; /* 600ms to fade out */
+    text-align: center;
+  }
+
+  /* The close button */
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+  
+/* When moving the mouse over the close button */
+.closebtn:hover {
+color: black;
 }
