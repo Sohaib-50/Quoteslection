@@ -28,23 +28,27 @@ db = db_connection.cursor(dictionary=True)
 @app.route("/")
 def index():
     # fetch all quotes in database
-    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
-    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
-    ORDER BY submission DESC;""")
+    # db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
+    # FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
+    # ORDER BY submission DESC;""")
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname, lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
+    FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
+    GROUP BY quote.id
+    ORDER BY quote.id;""")
     quotes = db.fetchall()
-    
+
     # fetch and store in a set all quote_ids for which the quote is favourite for the current user, if logged in
     if user_id := session.get("user_id"):
         favourites = set()
         # for every quote fetched earlier
         for quote in quotes:
             # if quote_id, user_id combination exists in the favourite table, then add the quote id to favourites set
-            quote_id = quote["quote_id"] 
+            quote_id = quote["quote_id"]
             db.execute(f"""SELECT * FROM favourite WHERE quote_id = %s and user_id = %s;""",
-            (quote_id, user_id))
-            if db.fetchone():  
+                       (quote_id, user_id))
+            if db.fetchone():
                 favourites.add(quote_id)
-        
+
         return render_template("index.html", quotes=quotes, favourites=favourites, title="Quoteslection")
 
     return render_template("index.html", quotes=quotes, title="Quoteslection")
@@ -71,7 +75,7 @@ def signup():
     if not all((firstname, username, password, confirm_password)):
         return render_template("signup.html", error="Please fill all the mandatory fields.", title="Sign Up")
 
-    if not firstname.isalpha() or not lastname.isalpha():
+    if not firstname.isalpha() or (lastname != "" and not lastname.isalpha()):
         return render_template("signup.html", error="Please enter your name properly.", title="Sign Up")
 
     # check if username already exists
@@ -87,17 +91,18 @@ def signup():
 
     if password != confirm_password:
         return render_template("signup.html", error="Passwords don't match.", title="Sign Up")
-    
+
     # add user to database
     db.execute("""
     INSERT INTO user (username, firstname, lastname, password_hash) 
     VALUES (%s, %s, %s, %s);""",
-    (username, firstname, lastname, generate_password_hash(password)))
+               (username, firstname, lastname, generate_password_hash(password)))
     db_connection.commit()
-    
+
     db.execute("SELECT id FROM user WHERE username = %s", (username, ))
-    signin_user(user_id=db.fetchone()["id"], username=username, firstname=firstname, lastname=lastname)
-    
+    signin_user(user_id=db.fetchone()[
+                "id"], username=username, firstname=firstname, lastname=lastname)
+
     flash(f"Successfully signed up. Welcome, {firstname}!")
     return redirect("/")
 
@@ -111,7 +116,7 @@ def signin():
     # if just visiting the signin page
     if request.method == "GET":
         return render_template("signin.html", title="Sign In")
-    
+
     # if submitted signin form
 
     username = request.form.get('username')
@@ -124,16 +129,17 @@ def signin():
     db.execute(f"""
     SELECT * FROM user
     WHERE username = %s;""",
-    (username, ))
+               (username, ))
     user_row = db.fetchone()
     if not user_row:
-        return render_template("signin.html", error="Invalid username", title="Sign In") 
+        return render_template("signin.html", error="Invalid username", title="Sign In")
     if not check_password_hash(user_row["password_hash"], password):
         return render_template("signin.html", error="Invalid password", title="Sign In")
 
     # logging user in (if all checks above passed)
-    signin_user(user_id=user_row["id"], username=user_row["username"], firstname=user_row["firstname"], lastname=user_row["lastname"])
-    
+    signin_user(user_id=user_row["id"], username=user_row["username"],
+                firstname=user_row["firstname"], lastname=user_row["lastname"])
+
     flash(f"Welcome, {user_row['firstname']}!", "success")
     if next_url := request.form.get("next"):
         return redirect(next_url)
@@ -149,16 +155,16 @@ def signout():
     return redirect("/")
 
 
-@app.route("/my_quotes")
+@app.route("/my_submissions")
 @login_required
-def my_quotes():
+def my_submissions():
     db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
     FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
     WHERE user.id = %s
     ORDER BY submission DESC;""",
-    (session.get("user_id"), ))
+               (session.get("user_id"), ))
     user_quotes = db.fetchall()
-    return render_template("myquotes.html", user_quotes=user_quotes, title="My Quotes")
+    return render_template("my_submissions.html", user_quotes=user_quotes, title="My Quotes")
 
 
 @app.route("/submit", methods=["POST", "GET"])
@@ -196,7 +202,11 @@ def favouriteify_quote():
         """,
                    (session.get("user_id"), quote_id))
     db_connection.commit()
-    return jsonify(True)
+
+    db.execute("SELECT COUNT(*) as fav_count FROM favourite WHERE quote_id = %s;", (quote_id, ))
+    fav_count = db.fetchone()["fav_count"]
+    return jsonify({"fav_count": fav_count})
+
 
 @app.route("/delete_quote/<quote_id>", methods=["GET", "POST"])
 @login_required
@@ -204,7 +214,7 @@ def delete_quote(quote_id):
     if request.method == "GET":
         db.execute("""SELECT id, quote_text, quotee FROM quote
         WHERE id = %s and submitter_user_id = %s""",
-        (quote_id, session.get("user_id")))
+                   (quote_id, session.get("user_id")))
         db_result = db.fetchone()
         if not db_result:
             flash("The quote you tried to delete isn't yours.")
@@ -213,16 +223,16 @@ def delete_quote(quote_id):
     else:
         if request.form.get("confirm_delete") == "NO":  # user doesnt want to delete
             flash("Not deleted.")
-            return redirect("/my_quotes")
+            return redirect("/my_submissions")
         else:  # confirm delete
-            db.execute("DELETE FROM favourite WHERE quote_id = %s", (quote_id, ))
+            db.execute(
+                "DELETE FROM favourite WHERE quote_id = %s", (quote_id, ))
 
             db.execute("DELETE FROM quote WHERE id = %s", (quote_id, ))
 
             db_connection.commit()
             flash("successfully deleted.")
-            return redirect("/my_quotes")
-
+            return redirect("/my_submissions")
 
 
 if __name__ == "__main__":

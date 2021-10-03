@@ -69,6 +69,7 @@ a
 {
     display: flex;
     justify-content: center;
+    margin: 10px 0 10px 0;
 }
 
 table
@@ -196,4 +197,25 @@ footer
 /* When moving the mouse over the close button */
 .closebtn:hover {
 color: black;
+}
+
+svg
+{
+    color: rgb(149, 69, 53);
+}
+
+.fav_count
+{
+    display: inline;
+}
+
+.fav_btn
+{
+    background-color: transparent;
+    border: none;
+}
+
+.fav_btn:hover
+{
+    cursor: pointer;
 }
