@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 from flask_session import Session
-from helpers import login_required, signin_user, signout_user, valid_password
+from helpers import get_favourites, login_required, signin_user, signout_user, valid_password
 
 
 app = Flask(__name__)
@@ -27,32 +27,16 @@ db = db_connection.cursor(dictionary=True)
 
 @app.route("/")
 def index():
-    # fetch all quotes in database
-    # db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
-    # FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
-    # ORDER BY submission DESC;""")
-    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname, lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname, 
+    lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
     GROUP BY quote.id
-    ORDER BY quote.id;""")
+    ORDER BY submission DESC;""")
     quotes = db.fetchall()
 
-    # fetch and store in a set all quote_ids for which the quote is favourite for the current user, if logged in
-    if user_id := session.get("user_id"):
-        favourites = set()
-        # for every quote fetched earlier
-        for quote in quotes:
-            # if quote_id, user_id combination exists in the favourite table, then add the quote id to favourites set
-            quote_id = quote["quote_id"]
-            db.execute(f"""SELECT * FROM favourite WHERE quote_id = %s and user_id = %s;""",
-                       (quote_id, user_id))
-            if db.fetchone():
-                favourites.add(quote_id)
+    favourites = get_favourites(db, quotes)
 
-        return render_template("index.html", quotes=quotes, favourites=favourites, title="Quoteslection")
-
-    return render_template("index.html", quotes=quotes, title="Quoteslection")
-    # return render_template("index.html", title="Home")
+    return render_template("index.html", quotes=quotes, favourites=favourites, title="Quoteslection")
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -155,16 +139,41 @@ def signout():
     return redirect("/")
 
 
+@app.route("/my_favourites")
+@login_required
+def my_favourites():
+    db.execute("""SELECT * FROM
+    (
+        SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname,
+        lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
+        FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
+        GROUP BY quote.id
+        ORDER BY submission DESC
+    )x
+    WHERE x.quote_id IN
+    (
+        SELECT quote_id FROM favourite WHERE user_id = %s
+    );""",
+    (session.get("user_id"), ))
+    
+    fav_quotes = db.fetchall()
+
+    return render_template("my_favourites.html", fav_quotes=fav_quotes, title="Quoteslection")
+
+
 @app.route("/my_submissions")
 @login_required
 def my_submissions():
-    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname, lastname
-    FROM quote INNER JOIN user ON quote.submitter_user_id = user.id
+    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, COUNT(favourite.user_id) AS fav_count
+    FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
     WHERE user.id = %s
+    GROUP BY quote.id
     ORDER BY submission DESC;""",
                (session.get("user_id"), ))
     user_quotes = db.fetchall()
-    return render_template("my_submissions.html", user_quotes=user_quotes, title="My Quotes")
+
+    favourites = get_favourites(db, user_quotes)
+    return render_template("my_submissions.html", user_quotes=user_quotes, favourites=favourites, title="My Quotes")
 
 
 @app.route("/submit", methods=["POST", "GET"])
@@ -183,7 +192,7 @@ def submit():
     db.execute("SELECT * FROM quote WHERE quote_text = %s", (quote, ))
     if db.fetchone():
         return render_template("submit.html", error="That quote already exists", title="Submit a quote")
-        
+
     db.execute("""
     INSERT INTO quote (quote_text, quotee, submitter_user_id)
     VALUES (%s, %s, %s);
@@ -195,6 +204,7 @@ def submit():
     return render_template("submit.html", title="Submit a quote")
 
 
+# favourite quote API
 @app.route("/favouriteify_quote", methods=["POST"])
 def favouriteify_quote():
     quote_id = request.form.get("quote_id")
@@ -209,7 +219,8 @@ def favouriteify_quote():
                    (session.get("user_id"), quote_id))
     db_connection.commit()
 
-    db.execute("SELECT COUNT(*) as fav_count FROM favourite WHERE quote_id = %s;", (quote_id, ))
+    db.execute(
+        "SELECT COUNT(*) as fav_count FROM favourite WHERE quote_id = %s;", (quote_id, ))
     fav_count = db.fetchone()["fav_count"]
     return jsonify({"fav_count": fav_count})
 

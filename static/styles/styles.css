@@ -69,7 +69,7 @@ a
 {
     display: flex;
     justify-content: center;
-    margin: 10px 0 10px 0;
+    margin: 10px 5px 10px 5px;
 }
 
 table
@@ -92,15 +92,20 @@ table tr:nth-child(odd)
 
 td, th
 {
-    padding: 13px;
     border: 1px solid transparent;
 }
 
 th
 {
     font-size: larger;
+    padding: 13px;
     background-color: rgba(149, 69, 53, 0.747);
     color: white;
+}
+
+td
+{
+    padding: 7px 13px 7px 13px;
 }
 
 .form

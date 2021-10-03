@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block main_body %}
+
+{% if not fav_quotes %}
+<h2> My Favourites </h2>
+<p> You have no quote favourite-d. </p>
+{% else %}
+<br>
+<div class="tablediv">
+    <table>
+        <thead>
+            <tr>
+                <th> Quote </th>
+                <th> Quotee </th>
+                <th> Submitter </th>
+                <th> Favourites </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quote in fav_quotes %}
+            <tr>
+                <td> {{ quote["quote_text"] }} </td>
+                <td> {{ quote["quotee"] }} </td>
+                <td> {{ quote["submitter_fname"] }} {{ quote["submitter_lname"] }} </td>
+                <td style="text-align: center;">
+                    <button id='quoteid-{{ quote["quote_id"] }}' class="fav_btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-heart-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                        </svg>
+                    </button>
+                    <div class="fav_count">{{ quote["fav_count"] }}</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/favourite.js') }}"></script>
+{% endif %}
+
+
+{% endblock %}

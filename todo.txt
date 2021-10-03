@@ -11,3 +11,5 @@
 6) do client side checking for login and signup pages initial checks
 
 7) (DONE) add delete button for quotes (atleast in myquotes page)
+
+8) fetch quotes, fetch favs funcs
