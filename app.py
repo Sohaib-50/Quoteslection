@@ -179,6 +179,11 @@ def submit():
     if not quote or not quotee:
         return render_template("submit.html", error="Please fill both fields", title="Submit a quote")
 
+    # check if quote already exists
+    db.execute("SELECT * FROM quote WHERE quote_text = %s", (quote, ))
+    if db.fetchone():
+        return render_template("submit.html", error="That quote already exists", title="Submit a quote")
+        
     db.execute("""
     INSERT INTO quote (quote_text, quotee, submitter_user_id)
     VALUES (%s, %s, %s);
@@ -186,7 +191,8 @@ def submit():
                (quote, quotee, session.get("user_id")))
     db_connection.commit()
 
-    return render_template("submit.html", success="Successfully submitted", title="Submit a quote")
+    flash("Successfully submitted")
+    return render_template("submit.html", title="Submit a quote")
 
 
 @app.route("/favouriteify_quote", methods=["POST"])
