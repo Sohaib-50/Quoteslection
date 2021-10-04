@@ -27,8 +27,8 @@ db = db_connection.cursor(dictionary=True)
 
 @app.route("/")
 def index():
-    db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname, 
-    lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
+    db.execute("""SELECT quote.id AS quote_id, quote.quote_text, quote.quotee, user.firstname AS submitter_fname, 
+    user.lastname AS submitter_lname, COUNT(favourite.quote_id) AS fav_count
     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
     GROUP BY quote.id
     ORDER BY submission DESC;""")
@@ -142,20 +142,23 @@ def signout():
 @app.route("/my_favourites")
 @login_required
 def my_favourites():
-    db.execute("""SELECT * FROM
-    (
-        SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname,
-        lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
-        FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
-        GROUP BY quote.id
-        ORDER BY submission DESC
-    )x
-    WHERE x.quote_id IN
-    (
-        SELECT quote_id FROM favourite WHERE user_id = %s
-    );""",
-    (session.get("user_id"), ))
-    
+    # db.execute("""SELECT * FROM
+    # (
+    #     SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname,
+    #     lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
+    #     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
+    #     GROUP BY quote.id
+    #     ORDER BY submission DESC
+    # )x
+    # WHERE x.quote_id IN
+    # (
+    #     SELECT quote_id FROM favourite WHERE user_id = %s
+    # );""",
+    # (session.get("user_id"), ))
+    db.execute("""SELECT user.firstname AS submitter_fname, user.lastname AS submitter_lname, quote.id AS quote_id, quote_text, quotee, COUNT(favourite.quote_id) AS fav_count
+        FROM  favourite INNER JOIN quote ON favourite.quote_id = quote.id INNER JOIN user ON quote.submitter_user_id = user.id
+        WHERE favourite.quote_id IN (SELECT quote_id FROM favourite WHERE user_id = %s)	
+        GROUP BY favourite.quote_id;""", (session.get("user_id"), ))
     fav_quotes = db.fetchall()
 
     return render_template("my_favourites.html", fav_quotes=fav_quotes, title="Quoteslection")
@@ -166,7 +169,7 @@ def my_favourites():
 def my_submissions():
     db.execute("""SELECT quote.id AS quote_id, quote_text, quotee, COUNT(favourite.user_id) AS fav_count
     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
-    WHERE user.id = %s
+    WHERE quote.submitter_user_id = %s
     GROUP BY quote.id
     ORDER BY submission DESC;""",
                (session.get("user_id"), ))
