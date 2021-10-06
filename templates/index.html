@@ -7,7 +7,27 @@
         Welcome To Quoteslection!
     </h1>
 </div> -->
+<button onclick="toggleSortDiv()"> Sort By &#9660; </button>
+<div id="sort" hidden>
+   <form action="/" method="GET">
+    Parameter <br>
+    <input required type="radio" name="sort_parameter" value="quote">Quote <br>
+    <input required type="radio" name="sort_parameter" value="quotee">Quotee <br>
+    <input required type="radio" name="sort_parameter" value="submitter">Submitter <br>
+    <input  required type="radio" name="sort_parameter" value="fav_count">Number of favourites <br>
+
+    <br>
+    Order <br>
+    <input required type="radio" name="sort_order" value="asc">Ascending <br>
+    <input required type="radio" name="sort_order" value="desc">Descending <br>
+    
+    <br>
+    <input type="submit" value="Sort">
+   </form>
+</div>
+
 <br>
+
 <div class="tablediv">
     <table>
         <thead>
@@ -23,7 +43,7 @@
             <tr>
                 <td> {{ quote["quote_text"] }} </td>
                 <td> {{ quote["quotee"] }} </td>
-                <td> {{ quote["submitter_fname"] }} {{ quote["submitter_lname"] }} </td>
+                <td> {{ quote["submitter"] }} </td>
                 <td style="text-align: center;">
                     {% if session.user_id %}
                         <button id='quoteid-{{ quote["quote_id"] }}' class="fav_btn">
@@ -53,4 +73,17 @@
 
 <script src="{{ url_for('static', filename='scripts/favourite.js') }}"></script>
 
+<script>
+    function toggleSortDiv() {
+       let sort_div = document.getElementById("sort");
+       if (sort_div.style.display === "none") {
+          sort_div.style.display = "block";
+       }
+       else {
+          sort_div.style.display = "none";
+       }
+    }
+ </script>
+
 {% endblock %}
+

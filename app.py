@@ -27,14 +27,28 @@ db = db_connection.cursor(dictionary=True)
 
 @app.route("/")
 def index():
-    db.execute("""SELECT quote.id AS quote_id, quote.quote_text, quote.quotee, user.firstname AS submitter_fname, 
-    user.lastname AS submitter_lname, COUNT(favourite.quote_id) AS fav_count
+    # check if sorting filter applied
+    if request.args.get("sort_parameter") and request.args.get("sort_order"): 
+        sort_parameter = request.args.get("sort_parameter").lower()
+        sort_order = request.args.get("sort_order").lower()
+        if (sort_parameter not in ["quote_text", "quotee", "submitter", "fav_count"]) or (sort_order not in ["asc", "desc"]):
+            flash("Something went wrong, please try doing whatever you were doing again.")
+            return redirect("/")
+    else:
+        sort_parameter = "submission"
+        sort_order = "DESC"
+
+    print(sort_parameter, sort_order)
+
+    db.execute(f"""SELECT quote.id AS quote_id, quote.quote_text, quote.quotee, CONCAT(user.firstname, " ", user.lastname) AS submitter, COUNT(favourite.quote_id) AS fav_count
     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
     GROUP BY quote.id
-    ORDER BY submission DESC;""")
+    ORDER BY {sort_parameter} {sort_order};""")
     quotes = db.fetchall()
 
     favourites = get_favourites(db, quotes)
+
+    # return str(quotes)
 
     return render_template("index.html", quotes=quotes, favourites=favourites, title="Quoteslection")
 
@@ -155,7 +169,7 @@ def my_favourites():
     #     SELECT quote_id FROM favourite WHERE user_id = %s
     # );""",
     # (session.get("user_id"), ))
-    db.execute("""SELECT user.firstname AS submitter_fname, user.lastname AS submitter_lname, quote.id AS quote_id, quote_text, quotee, COUNT(favourite.quote_id) AS fav_count
+    db.execute("""SELECT  CONCAT(user.firstname, " ", user.lastname) AS submitter, quote.id AS quote_id, quote_text, quotee, COUNT(favourite.quote_id) AS fav_count
         FROM  favourite INNER JOIN quote ON favourite.quote_id = quote.id INNER JOIN user ON quote.submitter_user_id = user.id
         WHERE favourite.quote_id IN (SELECT quote_id FROM favourite WHERE user_id = %s)	
         GROUP BY favourite.quote_id;""", (session.get("user_id"), ))
