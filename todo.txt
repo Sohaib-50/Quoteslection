@@ -14,4 +14,4 @@
 
 8) fetch quotes, fetch favs funcs
 
-9) give sorting options on index page
+9) (DONE) give sorting options on index page

@@ -2,16 +2,16 @@
 
 {% block main_body %}
 
-<!-- <div class="homepage">
+<div class="homepage">
     <h1 style="font-size: 2rem">
         Welcome To Quoteslection!
     </h1>
-</div> -->
+</div> 
 <button onclick="toggleSortDiv()"> Sort By &#9660; </button>
 <div id="sort" hidden>
    <form action="/" method="GET">
     Parameter <br>
-    <input required type="radio" name="sort_parameter" value="quote">Quote <br>
+    <input required type="radio" name="sort_parameter" value="quote_text">Quote <br>
     <input required type="radio" name="sort_parameter" value="quotee">Quotee <br>
     <input required type="radio" name="sort_parameter" value="submitter">Submitter <br>
     <input  required type="radio" name="sort_parameter" value="fav_count">Number of favourites <br>
