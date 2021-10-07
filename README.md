@@ -1,6 +1,8 @@
 # Quoteslection 🖊 
 
-#### Video Demo 📺 
+#### Video Demo 📺
+
+(coming soon)
 
 #### Description 📄 
 
@@ -44,15 +46,18 @@ Quoteslection, short for quotes-collection, is a website for looking at and shar
 
 ###### Prerequisites
 
-* [ ] Install Python (Version 3.8 or above)
+* Install Python (Version 3.8 or above)
+
   * [Python downloads website](httpshttps://www.python.org/downloads/)
-* [ ] Following python libraries (which can be installed by running `pip install -r requirements.txt` in a terminal while inside the root directory of the  project):
-  * [ ] mysql-connector-python
-  * [ ] Flask
-  * [ ] Flask-session
-* [ ] MySQL server (any version should be fine)
+* Following python libraries (which can be installed by running `pip install -r requirements.txt` in a terminal while inside the root directory of the  project):
+
+  * mysql-connector-python
+  * Flask
+  * Flask-Session
+* MySQL server (any version should be fine)
+
   * [MySQL installer download website](https://dev.mysql.com/downloads/mysql/)
-* [ ] Run the [schema.sql file](schema.sql) (present in root directory of the project) to get the database. Optionally uncomment the insert statements present at the bottom to get some initial data.
+* Run the [schema.sql file](schema.sql) (present in root directory of the project) to get the database. Optionally uncomment the insert statements present at the bottom to get some initial data.
 
 ###### Run the web app
 
