@@ -26,12 +26,20 @@ Quoteslection, short for quotes-collection, is a website for looking at and shar
 
 The application is made using Python's Flask framework, which is a backend web framework. Using flask, python functions for all views or routes are written. A view or a route is something that a user can see / visit. For example one route is called "/" which is the homepage. Another one is "/signup" which can be visited to sign up for a new account. These python functions "listen" for HTTP requests from the front end and respond in different ways. The functions for routes of this application are written in [app.py](app.py), which is explained below:
 
-###### app.py
+**app.py**
 
 At the start, required libraries/functions/modules are imported. Next Flask is configured and the database is connected, followed by functions for routes.
 
-**index** (For "/" route)
+**index** ("/" route)
 
+The default route, for home page. It fetches quotes and details for them from the database and returns the index.html template.
+
+**signup** ("/signup" route)
+
+First this function checks if a user is already signed in, in which case it redirects to the default route. It then checks whether the route was visited via GET parameter in which case it returns the signup.html page. If the page is visited via POST request, that is after submitting signup form, the function first gets the signup details and performs some validation on them. If validation checks aren't passed then  the signup page with an error message is returned. If validation checks are passed then the user is added to the `user` table in the database, signed in via `signin_user` function (present in helpers.py, explained later), and redirected to the default route.
+
+**signin** ("/signin" route)
+This works similarly to the signup route. If a user is logged in then a redirect to default route is returned whereas if GET request is recieved then `signin.html` is rendered. If a POST request is recieved (through submitting signin form) then username and password are recieved from the request, and checked if any of them are empty then the `signin.html` page is rendered with an error message. Next the credentials are verified. If they are invalid then the `signin.html` page is rendered with an error message. Otherwise user is signed in via `signin_user` function(present in helpers.py, explained later) and redirected to the default route.
 
 #### Screenshots
 
