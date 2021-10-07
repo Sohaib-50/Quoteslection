@@ -33,14 +33,14 @@ FOREIGN KEY(quote_id) REFERENCES quote(id)
 );
 
 -- @block
-INSERT INTO user (username, firstname, lastname, password_hash)
-VALUES 
-    ("Sohaib1", "Sohaib", "Abbasi", "pbkdf2:sha256:260000$1v9Zb2Asld6MC9W5$dc93d404c3cee4fd633e6c9cfbb8471e0884003a4a6cb3645a360b5f2266376a"),
-    ("Ali123", "Ali", "Ahmed", "pbkdf2:sha256:260000$1v9Zb2Asld6MC9W5$dc93d404c3cee4fd633e6c9cfbb8471e0884003a4a6cb3645a360b5f2266376a");
+-- INSERT INTO user (username, firstname, lastname, password_hash)
+-- VALUES 
+--     ("Sohaib1", "Sohaib", "Abbasi", "pbkdf2:sha256:260000$1v9Zb2Asld6MC9W5$dc93d404c3cee4fd633e6c9cfbb8471e0884003a4a6cb3645a360b5f2266376a"),
+--     ("Ali123", "Ali", "Ahmed", "pbkdf2:sha256:260000$1v9Zb2Asld6MC9W5$dc93d404c3cee4fd633e6c9cfbb8471e0884003a4a6cb3645a360b5f2266376a");
 
--- @BLOCK
-INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Hello world", "Brogrammer", 1);
-INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("It always seems impossible untill it's done", "Nelson Mandela", 1);
-INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("I have no special talent. I am only passionately curious", "Albert Einstein", 2);
-INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Twenty years from now you will be more disappointed by the things that you didn’t do than by the ones you did do.", "Mark Twain", 2);
-INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Those who dare to fail miserably can achieve greatly.", "John F. Kennedy", 1);
+-- -- @BLOCK
+-- INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Hello world", "Brogrammer", 1);
+-- INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("It always seems impossible untill it's done", "Nelson Mandela", 1);
+-- INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("I have no special talent. I am only passionately curious", "Albert Einstein", 2);
+-- INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Twenty years from now you will be more disappointed by the things that you didn’t do than by the ones you did do.", "Mark Twain", 2);
+-- INSERT INTO quote (quote_text, quotee, submitter_user_id) VALUES ("Those who dare to fail miserably can achieve greatly.", "John F. Kennedy", 1);

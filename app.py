@@ -1,14 +1,14 @@
 from os import getenv
 
 import mysql.connector
-from flask import Flask, jsonify, render_template, request, session, url_for, flash
-from werkzeug.utils import redirect
+from flask import (Flask, flash, jsonify, render_template, request, session,
+                   url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from werkzeug.utils import redirect
 
 from flask_session import Session
-from helpers import get_favourites, login_required, signin_user, signout_user, valid_password
-
+from helpers import (get_favourites, login_required, signin_user, signout_user,
+                     valid_password)
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -28,7 +28,7 @@ db = db_connection.cursor(dictionary=True)
 @app.route("/")
 def index():
     # check if sorting filter applied
-    if request.args.get("sort_parameter") and request.args.get("sort_order"): 
+    if request.args.get("sort_parameter") and request.args.get("sort_order"):
         sort_parameter = request.args.get("sort_parameter").lower()
         sort_order = request.args.get("sort_order").lower()
         if (sort_parameter not in ["quote_text", "quotee", "submitter", "fav_count"]) or (sort_order not in ["asc", "desc"]):
@@ -37,8 +37,6 @@ def index():
     else:
         sort_parameter = "submission"
         sort_order = "DESC"
-
-    print(sort_parameter, sort_order)
 
     db.execute(f"""SELECT quote.id AS quote_id, quote.quote_text, quote.quotee, CONCAT(user.firstname, " ", user.lastname) AS submitter, COUNT(favourite.quote_id) AS fav_count
     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
@@ -156,19 +154,6 @@ def signout():
 @app.route("/my_favourites")
 @login_required
 def my_favourites():
-    # db.execute("""SELECT * FROM
-    # (
-    #     SELECT quote.id AS quote_id, quote_text, quotee, firstname AS submitter_fname,
-    #     lastname AS submitter_lname, COUNT(favourite.user_id) AS fav_count
-    #     FROM user INNER JOIN quote ON user.id = quote.submitter_user_id LEFT OUTER JOIN favourite ON quote.id = favourite.quote_id
-    #     GROUP BY quote.id
-    #     ORDER BY submission DESC
-    # )x
-    # WHERE x.quote_id IN
-    # (
-    #     SELECT quote_id FROM favourite WHERE user_id = %s
-    # );""",
-    # (session.get("user_id"), ))
     db.execute("""SELECT  CONCAT(user.firstname, " ", user.lastname) AS submitter, quote.id AS quote_id, quote_text, quotee, COUNT(favourite.quote_id) AS fav_count
         FROM  favourite INNER JOIN quote ON favourite.quote_id = quote.id INNER JOIN user ON quote.submitter_user_id = user.id
         WHERE favourite.quote_id IN (SELECT quote_id FROM favourite WHERE user_id = %s)	

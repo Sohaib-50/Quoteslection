@@ -1,0 +1,5 @@
+# run "pip install -r requirements.txt" in a terminal to install the following dependencies
+
+mysql-connector-python
+Flask
+Flask-Session
