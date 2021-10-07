@@ -1,12 +1,37 @@
 # Quoteslection 🖊 
 
-#### Video Demo 📺
+### Video Demo 📺
 
 (coming soon)
 
-#### Description 📄 
+### Description 📄
+
+##### Abstract
 
 Quoteslection, short for quotes-collection, is a website for looking at and sharing quotes. Quotes and information related to them, i.e. Quotee (the one who said the quote), submitter of the quote, and number of favourites can be seen without  signing in. However to use all the features on the site - including features of submitting quotes; liking quotes; and viewing submitted and liked quotes - signing in is required.
+
+##### Folder Structure:
+
+* image/README: contains images for the project readme file
+* static: contains static files for the app.
+  * static/scripts: JavaScript file(s)
+  * static/styles: CSS file(s)
+* templates: countains HTML templates for the frontend.
+* app.py: The main file, written in python, that runs the application. It contains the backend logic of the application.
+* helpers.py: Contains some helper functions that are used by app.py
+* requirements.txt: Contains required python dependencies that must be installed to run the application.
+* schema.sql: Contains SQL queries for database creation and insertion of some data.
+
+##### Code Details
+
+The application is made using Python's Flask framework, which is a backend web framework. Using flask, python functions for all views or routes are written. A view or a route is something that a user can see / visit. For example one route is called "/" which is the homepage. Another one is "/signup" which can be visited to sign up for a new account. These python functions "listen" for HTTP requests from the front end and respond in different ways. The functions for routes of this application are written in [app.py](app.py), which is explained below:
+
+###### app.py
+
+At the start, required libraries/functions/modules are imported. Next Flask is configured and the database is connected, followed by functions for routes.
+
+**index** (For "/" route)
+
 
 #### Screenshots
 
@@ -42,7 +67,7 @@ Quoteslection, short for quotes-collection, is a website for looking at and shar
 
 ![](image/README/1633579047720.png)
 
-#### How to run on your computer 💻
+### How to run on your computer 💻
 
 ###### Prerequisites
 
