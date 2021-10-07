@@ -237,7 +237,7 @@ def delete_quote(quote_id):
         db_result = db.fetchone()
         if not db_result:
             flash("The quote you tried to delete isn't yours.")
-            return redirect("/")
+            return redirect("/my_submissions")
         return render_template("delete_quote.html", quote=db_result, title=f"Delete Quote")
     else:
         if request.form.get("confirm_delete") == "NO":  # user doesnt want to delete
